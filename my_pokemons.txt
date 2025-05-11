@@ -1,0 +1,3 @@
+Vulpix,0,0,2
+Voltorb,0,0,1
+Pikachu,0,0,1

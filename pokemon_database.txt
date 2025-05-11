@@ -1,0 +1,25 @@
+Charmander,Plain,Fire,None,Lizard,45,1
+Bulbasaur,Grass,Grass,Poison,Seed,45,1
+Pikachu,Tall Grass,Electric,None,Mouse,190,3
+Pidgey,Plain,Normal,Flying,Tiny Bird,255,1
+Rattata,Plain,Normal,None,Mouse,255,1
+Jigglypuff,Plain,Normal,Fairy,Balloon,170,1
+Vulpix,Tall Grass,Fire,None,Fox,190,3
+Zubat,Grass,Poison,Flying,Bat,255,1
+Diglett,Plain,Ground,None,Mole,255,1
+Psyduck,Water,Water,None,Duck,190,2
+Abra,Tall Grass,Psychic,None,Psi,200,3
+Ponyta,Plain,Fire,None,Fire Horse,190,2
+Geodude,Plain,Rock,Ground,Rock,255,1
+Doduo,Plain,Normal,Flying,Twin Bird,190,1
+Haunter,Grass,Ghost,Poison,Gas,90,1
+Onix,Plain,Rock,Ground,Rock Snake,45,1
+Drowzee,Grass,Psychic,None,Hypnosis,190,2
+Voltorb,Plain,Electric,None,Ball,190,3
+Cubone,Plain,Ground,None,Lonely,190,1
+Chansey,Tall Grass,Normal,None,Egg,30,2
+Staryu,Water,Water,None,Star Shape,225,3
+Eevee,Grass,Normal,None,Evolution,45,1
+Mewtwo,Plain,Psychic,None,Genetic,3,1
+Exeggcute,Grass,Grass,Psychic,Egg,90,1
+Magnemite,Plain,Electric,Steel,Magnet,190,1
