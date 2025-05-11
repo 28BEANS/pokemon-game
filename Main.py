@@ -4,13 +4,15 @@ import random
 FILENAME_POKEDEX = "pokemon_database.txt"
 FILENAME_MYPOKEMON = "my_pokemons.txt"
 
-def input_validator(min, max, prompt):
+def input_validator(min, max, prompt, active):
     user_input = input(prompt)
     keepGoing = True
 
     while keepGoing:
+        if user_input == "r" and active == True:
+            return user_input
         if not user_input.isdigit():
-            print("Invalid input. Please enter a numeric value.")
+            print("Invalid input.")
             user_input = input(prompt)
         elif int(user_input) < min or int(user_input) > max:
             print(f"Choose a valid option from {min} to {max}")
@@ -40,7 +42,7 @@ def load_pokedex_database(FILENAME_POKEDEX):
     return pokedex
 
 def load_my_pokemon_database(FILENAME_MYPOKEMON):
-    myPokemon = {}
+    myPokemon = []
     if not os.path.exists(FILENAME_MYPOKEMON):
         print(f"Error: The file '{FILENAME_MYPOKEMON}' was not found.")
         return myPokemon
@@ -48,11 +50,7 @@ def load_my_pokemon_database(FILENAME_MYPOKEMON):
     with open(FILENAME_MYPOKEMON) as file:
         for line in file:
             name, rock, bait, turns = line.strip().split(',')
-            myPokemon[name] = {
-                "rocksThrown" : rock,
-                "baitsThrown" : bait,
-                "turns" : turns
-            }
+            myPokemon.append([name, rock, bait, turns])
     return myPokemon
 
 def update_pokedex_database(pokedex, FILENAME_POKEDEX):
@@ -70,22 +68,25 @@ def update_my_pokemon_database(selectedPokemon, rock, bait, turns):
     with open(FILENAME_MYPOKEMON, 'a') as file:
         file.write(line + "\n")
 
-def remove_data_my_pokemon(filename, key_name):
+def remove_data_my_pokemon_by_index(filename, index_to_remove):
     with open(filename, "r") as file:
-        rows = file.readlines()  # Read all rows into a list
+        rows = file.readlines()
 
     with open(filename, "w") as file:
-        for row in rows:
-            if not row.startswith(key_name + ","):  # Skip the row to delete
+        for idx, row in enumerate(rows):
+            if idx != index_to_remove:
                 file.write(row)
 
 def view_pokedex():
     pokedex = load_pokedex_database(FILENAME_POKEDEX)
+    print("{:^90}".format(">> POKEDEX <<"))
+    print()
 
+    print("=" * 95)
     print("{:<15} {:<15} {:<15} {:<15} {:<15} {:<15}".format(
         "Name", "Area", "Type 1", "Type 2", "Species", "Capture Rate"
     ))
-    print("=" * 90)
+    print("=" * 95)
 
     for name, data in pokedex.items():
         status = data["isCaught"]
@@ -116,21 +117,45 @@ def view_my_pokemon():
     ))
     print("=" * 70)
 
-    for name, data in myPokemon.items():
-        print("{:<15} {:<15} {:<15} {:<15} ".format(
-            name,
-            data["rocksThrown"],
-            data["baitsThrown"],
-            data["turns"],
-        ))
+    for data in myPokemon:
+        name, rock, bait, turns = data
+        print("{:<15} {:<15} {:<15} {:<15}".format(name, rock, bait, turns))
+
     print("=" * 70)
     print()
 
+
 def remove_pokemon():
-    view_my_pokemon()
-    print()
-    choice = input("Type the name of pokemon you want to release: ")
-    remove_data_my_pokemon(FILENAME_MYPOKEMON, choice)
+    with open(FILENAME_MYPOKEMON, "r") as file:
+        rows = file.readlines()
+
+    myPokemon = []
+    for i, line in enumerate(rows):
+        name, rock, bait, turns = line.strip().split(',')
+        myPokemon.append([i, name, rock, bait, turns])
+
+    print("{:<5} {:<15} {:<15} {:<15} {:<15}".format("ID", "Name", "Rocks Thrown", "Baits Thrown", "Turns"))
+    print("=" * 75)
+    for entry in myPokemon:
+        idx, name, rock, bait, turns = entry
+        print("{:<5} {:<15} {:<15} {:<15} {:<15}".format(idx, name, rock, bait, turns))
+    print("=" * 75)
+
+    while True:
+        choice = input("Enter the ID of the Pokémon to release [c to cancel]: ")
+        if choice.lower() == "c":
+            break
+        if choice.isdigit():
+            choice = int(choice)
+            if 0 <= choice < len(rows):
+                remove_data_my_pokemon_by_index(FILENAME_MYPOKEMON, choice)
+                print("Pokémon released.")
+                break
+            else:
+                print("Invalid ID.")
+        else:
+            print("Please enter a valid number or 'c'.")
+
 
 def sort_pokemon():
     pokedex = load_pokedex_database(FILENAME_POKEDEX)
@@ -236,43 +261,43 @@ def simulate_turn(captureRate, runChance):
 
 def play_safari_zone():
     keepGoing = True
-    pokemonSpawns = create_safari_zone()
     captureRate = 0
-    print()
+
     while keepGoing:
+        pokemonSpawns = create_safari_zone()
+        print()
         selectedPokemon = ""
         recordedAction = [0, 0] # rock, bait, turn
         stats = [captureRate, 0]
-        print("Options")
+        print("OPTIONS")
         print("\t[1-5] : Interact with a pokemon")
         print("\t[0] : Refresh spawn area")
         print("\t[r] : Return")
         print()
 
-        choice = input("Choice: ")
+        choice = input_validator(0, 5, "Choose: ", True)
         print()
 
-        if choice.isdigit() and choice in ('1','2','3','4','5'):
+        if choice in (1, 2, 3, 4, 5):
             stats[0] = get_capture_rate(pokemonSpawns, choice)
             change_status(pokemonSpawns, choice, False)
             match choice:
-                case '1':
+                case 1:
                     print(f"You've encountered {pokemonSpawns[0][1]}")
                     selectedPokemon = pokemonSpawns[0][1]
-                case '2':
+                case 2:
                     print(f"You've encountered {pokemonSpawns[1][1]}")
                     selectedPokemon = pokemonSpawns[1][1]
-                case '3':
+                case 3:
                     print(f"You've encountered {pokemonSpawns[2][1]}")
                     selectedPokemon = pokemonSpawns[2][1]
-                case '4':
+                case 4:
                     print(f"You've encountered {pokemonSpawns[3][1]}")
                     selectedPokemon = pokemonSpawns[3][1]
-                case '5':
+                case 5:
                     print(f"You've encountered {pokemonSpawns[4][1]}")
                     selectedPokemon = pokemonSpawns[4][1]
-                case _:
-                    print("Choose a valid option")
+
 
             for turn in range(1, 5 + 1):
                 print(f"Capture Rate: {stats[0]}")
@@ -285,7 +310,7 @@ def play_safari_zone():
                       "\n\t[3] : Safari Bait"
                       "\n\t[4] : Run")
 
-                takenAction = input_validator(1, 4, "Choose: ")
+                takenAction = input_validator(1, 4, "Choose: ", False)
                 print()
                 if turn == 4:
                     stats[1] = 100
@@ -326,31 +351,38 @@ def play_safari_zone():
             keepGoing = False
 
 def my_pokemon():
-    print("OPTIONS"
-          "\n\t[1] : View My Pokemon"
-          "\n\t[2] : Release a Pokemon")
+    keepGoing = True
 
-    choice = int(input("Choose: "))
-    print()
-    match choice:
-        case 1:
-            view_my_pokemon()
-        case 2:
-            remove_pokemon()
+    while keepGoing:
+        print("OPTIONS"
+              "\n\t[1] : View My Pokemon"
+              "\n\t[2] : Release a Pokemon"
+              "\n\t[r] : Return")
+        print()
+
+        choice = input_validator(1, 2, "Choose: ", True)
+        print()
+        match choice:
+            case 1:
+                view_my_pokemon()
+            case 2:
+                remove_pokemon()
+            case "r":
+                keepGoing = False
 
 def main():
 
     while True:
-        print("~*" * 35)
-        print("{:^70}".format("MAIN MENU"))
-        print("~*" * 35)
+        print("~*" * 25)
+        print("{:^50}".format("MAIN MENU"))
+        print("~*" * 25)
         print("\t[1] : View Pokedex")
         print("\t[2] : My Pokemon")
         print("\t[3] : Play Safari Zone")
         print("\t[4] : Exit")
         print()
 
-        choice = input_validator(1, 4, "Watcha wanna do?: ")
+        choice = input_validator(1, 4, "Watcha wanna do?: ", False)
         print()
 
         match choice:
@@ -366,5 +398,3 @@ def main():
 
 
 main()
-# just a test
-# another test
