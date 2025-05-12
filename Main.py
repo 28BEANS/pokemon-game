@@ -9,7 +9,7 @@ def input_validator(min, max, prompt, active):
     keepGoing = True
 
     while keepGoing:
-        if user_input == "r" and active == True:
+        if user_input in ("r", "c") and active == True:
             return user_input
         if not user_input.isdigit():
             print("Invalid input.")
@@ -21,12 +21,44 @@ def input_validator(min, max, prompt, active):
             keepGoing = False
     return int(user_input)
 
+def create_default_pokedex_database(FILENAME_POKEDEX):
+    with open (f"{FILENAME_POKEDEX}", "w") as file:
+        file.write("Charmander,Plain,Fire,None,Lizard,45,1\n"
+                   "Bulbasaur,Grass,Grass,Poison,Seed,45,1\n"
+                   "Pikachu,Tall Grass,Electric,None,Mouse,190,1\n"
+                   "Pidgey,Plain,Normal,Flying,Tiny Bird,255,1\n"
+                   "Rattata,Plain,Normal,None,Mouse,255,1\n"
+                   "Jigglypuff,Plain,Normal,Fairy,Balloon,170,1\n"
+                   "Vulpix,Tall Grass,Fire,None,Fox,190,1\n"
+                   "Zubat,Grass,Poison,Flying,Bat,255,1\n"
+                   "Diglett,Plain,Ground,None,Mole,255,1\n"
+                   "Psyduck,Water,Water,None,Duck,190,1\n"
+                   "Abra,Tall Grass,Psychic,None,Psi,200,1\n"
+                   "Ponyta,Plain,Fire,None,Fire Horse,190,1\n"
+                   "Geodude,Plain,Rock,Ground,Rock,255,1\n"
+                   "Doduo,Plain,Normal,Flying,Twin Bird,190,1\n"
+                   "Haunter,Grass,Ghost,Poison,Gas,90,1\n"
+                   "Onix,Plain,Rock,Ground,Rock Snake,45,1\n"
+                   "Drowzee,Grass,Psychic,None,Hypnosis,190,1\n"
+                   "Voltorb,Plain,Electric,None,Ball,190,1\n"
+                   "Cubone,Plain,Ground,None,Lonely,190,1\n"
+                   "Chansey,Tall Grass,Normal,None,Egg,30,1\n"
+                   "Staryu,Water,Water,None,Star Shape,225,1\n"
+                   "Eevee,Grass,Normal,None,Evolution,45,1\n"
+                   "Mewtwo,Plain,Psychic,None,Genetic,3,1\n"
+                   "Exeggcute,Grass,Grass,Psychic,Egg,90,1\n"
+                   "Magnemite,Plain,Electric,Steel,Magnet,190,1\n")
+
+def create_default_my_pokemon_database(FILENAME_MYPOKEMON):
+    with open(f"{FILENAME_MYPOKEMON}", "w") as file:
+        file.write("")
 
 def load_pokedex_database(FILENAME_POKEDEX):
     pokedex = {}
     if not os.path.exists(FILENAME_POKEDEX):
         print(f"Error: The file '{FILENAME_POKEDEX}' was not found.")
-        return pokedex
+        print("Default file was created instead")
+        create_default_pokedex_database(FILENAME_POKEDEX)
 
     with open(FILENAME_POKEDEX) as file:
         for line in file:
@@ -43,14 +75,21 @@ def load_pokedex_database(FILENAME_POKEDEX):
 
 def load_my_pokemon_database(FILENAME_MYPOKEMON):
     myPokemon = []
+
     if not os.path.exists(FILENAME_MYPOKEMON):
         print(f"Error: The file '{FILENAME_MYPOKEMON}' was not found.")
+        print("Default File was created instead")
+        create_default_my_pokemon_database(FILENAME_MYPOKEMON)
         return myPokemon
 
     with open(FILENAME_MYPOKEMON) as file:
-        for line in file:
-            name, rock, bait, turns = line.strip().split(',')
+        lines = [line.strip() for line in file if line.strip()]
+        if not lines:
+            return myPokemon
+        for line in lines:
+            name, rock, bait, turns = line.split(',')
             myPokemon.append([name, rock, bait, turns])
+
     return myPokemon
 
 def update_pokedex_database(pokedex, FILENAME_POKEDEX):
@@ -117,9 +156,13 @@ def view_my_pokemon():
     ))
     print("=" * 70)
 
-    for data in myPokemon:
-        name, rock, bait, turns = data
-        print("{:<15} {:<15} {:<15} {:<15}".format(name, rock, bait, turns))
+    if len(myPokemon) == 0:
+        print("{:^70}".format(">> NO POKEMONS CAPTURED <<"))
+
+    else:
+        for data in myPokemon:
+            name, rock, bait, turns = data
+            print("{:<15} {:<15} {:<15} {:<15}".format(name, rock, bait, turns))
 
     print("=" * 70)
     print()
@@ -136,25 +179,28 @@ def remove_pokemon():
 
     print("{:<5} {:<15} {:<15} {:<15} {:<15}".format("ID", "Name", "Rocks Thrown", "Baits Thrown", "Turns"))
     print("=" * 75)
-    for entry in myPokemon:
-        idx, name, rock, bait, turns = entry
-        print("{:<5} {:<15} {:<15} {:<15} {:<15}".format(idx, name, rock, bait, turns))
+    if len(myPokemon) == 0:
+        print("{:^70}".format(">> NO POKEMONS CAPTURED <<"))
+        print()
+    else:
+        for entry in myPokemon:
+            idx, name, rock, bait, turns = entry
+            print("{:<5} {:<15} {:<15} {:<15} {:<15}".format(idx, name, rock, bait, turns))
     print("=" * 75)
 
     while True:
-        choice = input("Enter the ID of the Pokémon to release [c to cancel]: ")
-        if choice.lower() == "c":
+        if len(myPokemon) == 0:
             break
-        if choice.isdigit():
-            choice = int(choice)
-            if 0 <= choice < len(rows):
+
+        else:
+            choice = input_validator(0,len(rows),"Enter the ID of the Pokémon to release [c to cancel]: ", True)
+            if choice == "c":
+                break
+            elif 0 <= choice < len(rows):
                 remove_data_my_pokemon_by_index(FILENAME_MYPOKEMON, choice)
                 print("Pokémon released.")
                 break
-            else:
-                print("Invalid ID.")
-        else:
-            print("Please enter a valid number or 'c'.")
+
 
 
 def sort_pokemon():
@@ -370,6 +416,17 @@ def my_pokemon():
             case "r":
                 keepGoing = False
 
+def reset_database(FILENAME_POKEDEX, FILENAME_MYPOKEMON):
+    while True:
+        choice = input_validator(0, 1, "Are you sure? [0] yes [1] no: ", False)
+        if choice == 0:
+            create_default_pokedex_database(FILENAME_POKEDEX)
+            create_default_my_pokemon_database(FILENAME_MYPOKEMON)
+            print("Progress Reset")
+            break
+        elif choice == 1:
+            break
+
 def main():
 
     while True:
@@ -379,10 +436,11 @@ def main():
         print("\t[1] : View Pokedex")
         print("\t[2] : My Pokemon")
         print("\t[3] : Play Safari Zone")
-        print("\t[4] : Exit")
+        print("\t[4] : Reset Progress")
+        print("\t[5] : Exit")
         print()
 
-        choice = input_validator(1, 4, "Watcha wanna do?: ", False)
+        choice = input_validator(1, 5, "Watcha wanna do?: ", False)
         print()
 
         match choice:
@@ -393,6 +451,8 @@ def main():
             case 3:
                 play_safari_zone()
             case 4:
+                reset_database(FILENAME_POKEDEX,FILENAME_MYPOKEMON)
+            case 5:
                 print("Saved Progress. You've Exited the Game")
                 break
 
