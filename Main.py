@@ -4,7 +4,7 @@ import random
 FILENAME_POKEDEX = "pokemon_database.txt"
 FILENAME_MYPOKEMON = "my_pokemons.txt"
 
-def input_validator(min, max, prompt, active):
+def input_validator(min, max, prompt, active): # utility function used to validate user inputs
     user_input = input(prompt)
     keepGoing = True
 
@@ -21,7 +21,7 @@ def input_validator(min, max, prompt, active):
             keepGoing = False
     return int(user_input)
 
-def create_default_pokedex_database(FILENAME_POKEDEX):
+def create_default_pokedex_database(FILENAME_POKEDEX): # creates default pokemon database if there is none
     with open (f"{FILENAME_POKEDEX}", "w") as file:
         file.write("Charmander,Plain,Fire,None,Lizard,45,1\n"
                    "Bulbasaur,Grass,Grass,Poison,Seed,45,1\n"
@@ -49,11 +49,11 @@ def create_default_pokedex_database(FILENAME_POKEDEX):
                    "Exeggcute,Grass,Grass,Psychic,Egg,90,1\n"
                    "Magnemite,Plain,Electric,Steel,Magnet,190,1\n")
 
-def create_default_my_pokemon_database(FILENAME_MYPOKEMON):
+def create_default_my_pokemon_database(FILENAME_MYPOKEMON): # creates default 'my_pokemon' database if there is none
     with open(f"{FILENAME_MYPOKEMON}", "w") as file:
         file.write("")
 
-def load_pokedex_database(FILENAME_POKEDEX):
+def load_pokedex_database(FILENAME_POKEDEX): # retrieves data from "pokemon_database" and stores it into dictionary
     pokedex = {}
     if not os.path.exists(FILENAME_POKEDEX):
         print(f"Error: The file '{FILENAME_POKEDEX}' was not found.")
@@ -73,7 +73,7 @@ def load_pokedex_database(FILENAME_POKEDEX):
             }
     return pokedex
 
-def load_my_pokemon_database(FILENAME_MYPOKEMON):
+def load_my_pokemon_database(FILENAME_MYPOKEMON): # retrieves data from "my_pokemon" database and stores it into 2d list
     myPokemon = []
 
     if not os.path.exists(FILENAME_MYPOKEMON):
@@ -92,7 +92,7 @@ def load_my_pokemon_database(FILENAME_MYPOKEMON):
 
     return myPokemon
 
-def update_pokedex_database(pokedex, FILENAME_POKEDEX):
+def update_pokedex_database(pokedex, FILENAME_POKEDEX): # update whole pokemon databasse
     lines = []
     for name, data in pokedex.items():
         line = f"{name},{data['area']},{data['type1']},{data['type2']},{data['species']},{data['captureRate']},{data['isCaught']}"
@@ -101,13 +101,13 @@ def update_pokedex_database(pokedex, FILENAME_POKEDEX):
     with open(FILENAME_POKEDEX, 'w') as file:
         file.write("\n".join(lines))
 
-def update_my_pokemon_database(selectedPokemon, rock, bait, turns):
+def update_my_pokemon_database(selectedPokemon, rock, bait, turns): # adds captured pokemon to "my_pokemon" database
     line = f"{selectedPokemon},{rock},{bait},{turns}"
 
     with open(FILENAME_MYPOKEMON, 'a') as file:
         file.write(line + "\n")
 
-def remove_data_my_pokemon_by_index(filename, index_to_remove):
+def remove_data_my_pokemon_by_index(filename, index_to_remove): #removes selected pokemon from "my_pokemon" database
     with open(filename, "r") as file:
         rows = file.readlines()
 
@@ -116,7 +116,7 @@ def remove_data_my_pokemon_by_index(filename, index_to_remove):
             if idx != index_to_remove:
                 file.write(row)
 
-def view_pokedex():
+def view_pokedex(): # displays whole pokemo database
     pokedex = load_pokedex_database(FILENAME_POKEDEX)
     print("{:^90}".format(">> POKEDEX <<"))
     print()
@@ -149,7 +149,7 @@ def view_pokedex():
     print("=" * 90)
     print()
 
-def view_my_pokemon():
+def view_my_pokemon(): # displays captured pokemons
     myPokemon = load_my_pokemon_database(FILENAME_MYPOKEMON)
     print("{:<15} {:<15} {:<15} {:<15}".format(
         "Name", "Rocks Thrown", "Baits Thrown", "Turns"
@@ -168,7 +168,7 @@ def view_my_pokemon():
     print()
 
 
-def remove_pokemon():
+def remove_pokemon(): # gives index-based list of captured pokemon for easy removal
     with open(FILENAME_MYPOKEMON, "r") as file:
         rows = file.readlines()
 
@@ -203,7 +203,7 @@ def remove_pokemon():
 
 
 
-def sort_pokemon():
+def sort_pokemon(): #sort pokemons by their area
     pokedex = load_pokedex_database(FILENAME_POKEDEX)
     areas = {
         "grass": [],
@@ -223,7 +223,7 @@ def sort_pokemon():
 
     return areas
 
-def create_safari_zone():
+def create_safari_zone(): # creates the playing field and also randomizes pokemon spawns
     areas = sort_pokemon()
 
     grid = [
@@ -262,7 +262,7 @@ def create_safari_zone():
 
     return pokemon_spawns
 
-def get_capture_rate(pokemonSpawns, choice):
+def get_capture_rate(pokemonSpawns, choice): # getter function for a certain pokemon's capture rate
     pokedex = load_pokedex_database(FILENAME_POKEDEX)
     chosenPokemons = pokemonSpawns
     chosen = int(choice)
@@ -276,7 +276,7 @@ def get_capture_rate(pokemonSpawns, choice):
 
     return captureRate
 
-def change_status(pokemonSpawns, choice, captured):
+def change_status(pokemonSpawns, choice, captured): # change a certain's pokemon 'isCaught' status
     pokedex = load_pokedex_database(FILENAME_POKEDEX)
     chosenPokemons = pokemonSpawns
     chosen = int(choice)
@@ -291,7 +291,7 @@ def change_status(pokemonSpawns, choice, captured):
 
     update_pokedex_database(pokedex, FILENAME_POKEDEX)
 
-def simulate_turn(captureRate, runChance):
+def simulate_turn(captureRate, runChance): # determines the 'fate' of the pokemon if user chose to capture them
     catch_roll = random.randint(1, 255)
     is_caught = catch_roll <= captureRate
 
@@ -305,7 +305,7 @@ def simulate_turn(captureRate, runChance):
     else:
         return "still there"
 
-def play_safari_zone():
+def play_safari_zone(): # where the user interacts with pokemon and the 'playing zone'
     keepGoing = True
     captureRate = 0
 
@@ -327,23 +327,21 @@ def play_safari_zone():
         if choice in (1, 2, 3, 4, 5):
             stats[0] = get_capture_rate(pokemonSpawns, choice)
             change_status(pokemonSpawns, choice, False)
-            match choice:
-                case 1:
-                    print(f"You've encountered {pokemonSpawns[0][1]}")
-                    selectedPokemon = pokemonSpawns[0][1]
-                case 2:
-                    print(f"You've encountered {pokemonSpawns[1][1]}")
-                    selectedPokemon = pokemonSpawns[1][1]
-                case 3:
-                    print(f"You've encountered {pokemonSpawns[2][1]}")
-                    selectedPokemon = pokemonSpawns[2][1]
-                case 4:
-                    print(f"You've encountered {pokemonSpawns[3][1]}")
-                    selectedPokemon = pokemonSpawns[3][1]
-                case 5:
-                    print(f"You've encountered {pokemonSpawns[4][1]}")
-                    selectedPokemon = pokemonSpawns[4][1]
-
+            if choice == 1:
+                print(f"You've encountered {pokemonSpawns[0][1]}")
+                selectedPokemon = pokemonSpawns[0][1]
+            elif choice == 2:
+                print(f"You've encountered {pokemonSpawns[1][1]}")
+                selectedPokemon = pokemonSpawns[1][1]
+            elif choice == 3:
+                print(f"You've encountered {pokemonSpawns[2][1]}")
+                selectedPokemon = pokemonSpawns[2][1]
+            elif choice == 4:
+                print(f"You've encountered {pokemonSpawns[3][1]}")
+                selectedPokemon = pokemonSpawns[3][1]
+            elif choice == 5:
+                print(f"You've encountered {pokemonSpawns[4][1]}")
+                selectedPokemon = pokemonSpawns[4][1]
 
             for turn in range(1, 5 + 1):
                 print(f"Capture Rate: {stats[0]}")
@@ -396,7 +394,7 @@ def play_safari_zone():
         elif choice == 'r':
             keepGoing = False
 
-def my_pokemon():
+def my_pokemon(): # initiates my_pokemon sub-function
     keepGoing = True
 
     while keepGoing:
@@ -408,15 +406,14 @@ def my_pokemon():
 
         choice = input_validator(1, 2, "Choose: ", True)
         print()
-        match choice:
-            case 1:
-                view_my_pokemon()
-            case 2:
-                remove_pokemon()
-            case "r":
-                keepGoing = False
+        if choice == 1:
+            view_my_pokemon()
+        elif choice == 2:
+            remove_pokemon()
+        elif choice == "r":
+            keepGoing = False
 
-def reset_database(FILENAME_POKEDEX, FILENAME_MYPOKEMON):
+def reset_database(FILENAME_POKEDEX, FILENAME_MYPOKEMON): # reset both database into their default state
     while True:
         choice = input_validator(0, 1, "Are you sure? [0] yes [1] no: ", False)
         if choice == 0:
@@ -427,7 +424,7 @@ def reset_database(FILENAME_POKEDEX, FILENAME_MYPOKEMON):
         elif choice == 1:
             break
 
-def main():
+def main(): # main block where main options will be displayed to user
 
     while True:
         print("~*" * 25)
@@ -443,18 +440,17 @@ def main():
         choice = input_validator(1, 5, "Watcha wanna do?: ", False)
         print()
 
-        match choice:
-            case 1:
-                view_pokedex()
-            case 2:
-                my_pokemon()
-            case 3:
-                play_safari_zone()
-            case 4:
-                reset_database(FILENAME_POKEDEX,FILENAME_MYPOKEMON)
-            case 5:
-                print("Saved Progress. You've Exited the Game")
-                break
+        if choice == 1:
+            view_pokedex()
+        elif choice == 2:
+            my_pokemon()
+        elif choice == 3:
+            play_safari_zone()
+        elif choice == 4:
+            reset_database(FILENAME_POKEDEX, FILENAME_MYPOKEMON)
+        elif choice == 5:
+            print("Saved Progress. You've Exited the Game")
+            break
 
 
 main()
